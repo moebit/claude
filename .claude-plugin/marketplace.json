@@ -1,0 +1,22 @@
+{
+  "name": "moebit-tools",
+  "owner": {
+    "name": "moebit"
+  },
+  "metadata": {
+    "description": "moebit's personal Claude Code marketplace — cross-model and other dev tools.",
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "multi-llm",
+      "source": "./",
+      "description": "Cross-model collaboration. First skill: brainstorm — multi-turn dialogue between OpenAI and Gemini, with optional --research mode (web search on both sides) and a --pro flag to swap to top-tier models.",
+      "version": "0.1.0",
+      "author": {
+        "name": "moebit"
+      },
+      "keywords": ["brainstorm", "openai", "gemini", "multi-model", "research"]
+    }
+  ]
+}

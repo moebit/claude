@@ -15,21 +15,35 @@ A Claude Code plugin for cross-model collaboration. Lets Claude reach out to Ope
 - [`uv`](https://docs.astral.sh/uv/) — `brew install uv` or `conda install -c conda-forge uv`. The brainstorm script declares its dependencies inline and `uv run` resolves them on first call.
 - `OPENAI_API_KEY` and `GEMINI_API_KEY` (or `GOOGLE_API_KEY`) exported in the shell that runs Claude Code.
 
-### Local install
+### Install from this repo (private GitHub)
 
-From this repo's directory:
+This repo is a Claude Code [plugin marketplace](https://code.claude.com/docs/en/plugin-marketplaces) named `moebit-tools` that hosts the `multi-llm` plugin. Two slash commands inside Claude Code:
+
+```
+/plugin marketplace add moebit/claude
+/plugin install multi-llm@moebit-tools
+```
+
+Then run `/reload-plugins` to activate it. The skill becomes available as `/multi-llm:brainstorm` (and is auto-invoked when you ask Claude to "brainstorm with the other models").
+
+> Because the repo is private, `gh auth status` (or another git credential helper) must be authenticated for the host running Claude Code so the marketplace clone can fetch.
+
+You can also install via the CLI before launching Claude Code:
 
 ```bash
-claude --add-dir .
+claude plugin marketplace add moebit/claude
+claude plugin install multi-llm@moebit-tools
 ```
 
-Then in Claude Code:
+### Local development (skip marketplace)
 
-```
-/plugin install ./
+To iterate without committing/pushing:
+
+```bash
+claude --plugin-dir /path/to/claude
 ```
 
-Or use the plugin marketplace flow once published. The plugin manifest lives at `.claude-plugin/plugin.json`; skills auto-discover from `skills/`.
+Run `/reload-plugins` after edits to pick up changes.
 
 ## Usage
 
@@ -68,7 +82,8 @@ Defaults pick the cheap-but-current tier. Pass `--pro` (or ask Claude for "the P
 ```
 .
 ├── .claude-plugin/
-│   └── plugin.json
+│   ├── marketplace.json     # makes this repo a single-plugin marketplace
+│   └── plugin.json          # plugin manifest (multi-llm)
 ├── skills/
 │   └── brainstorm/
 │       ├── SKILL.md
