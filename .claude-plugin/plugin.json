@@ -1,0 +1,9 @@
+{
+  "name": "multi-llm",
+  "version": "0.1.0",
+  "description": "Cross-model collaboration from Claude Code. First skill: brainstorm — a multi-turn dialogue between OpenAI and Gemini on a topic.",
+  "author": {
+    "name": "moe"
+  },
+  "keywords": ["brainstorm", "openai", "gemini", "multi-model", "research"]
+}
