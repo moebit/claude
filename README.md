@@ -58,8 +58,10 @@ Add "research it" / "use web search" to engage the `--research` flag, which turn
 | :------- | :------ | :------ |
 | `OPENAI_API_KEY` | OpenAI auth | _(required)_ |
 | `GEMINI_API_KEY` / `GOOGLE_API_KEY` | Google AI auth | _(required)_ |
-| `BRAINSTORM_OPENAI_MODEL` | OpenAI model name | `gpt-5` |
-| `BRAINSTORM_GEMINI_MODEL` | Gemini model name | `gemini-2.5-pro` |
+| `BRAINSTORM_OPENAI_MODEL` | OpenAI model name | `gpt-5.5` (`gpt-5.5-pro` with `--pro`) |
+| `BRAINSTORM_GEMINI_MODEL` | Gemini model name | `gemini-3.1-flash-lite-preview` (`gemini-3.1-pro-preview` with `--pro`) |
+
+Defaults pick the cheap-but-current tier. Pass `--pro` (or ask Claude for "the Pro models") to swap both sides to the top tier for the run.
 
 ## Layout
 

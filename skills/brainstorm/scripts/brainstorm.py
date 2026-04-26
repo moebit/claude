@@ -33,6 +33,11 @@ SYSTEM_PROMPT = (
     "strong points beat a long list. Use markdown for structure when helpful."
 )
 
+DEFAULT_OPENAI_MODEL = "gpt-5.5"
+DEFAULT_GEMINI_MODEL = "gemini-3.1-flash-lite-preview"
+PRO_OPENAI_MODEL = "gpt-5.5-pro"
+PRO_GEMINI_MODEL = "gemini-3.1-pro-preview"
+
 
 def die(msg: str, code: int = 1) -> None:
     print(f"error: {msg}", file=sys.stderr)
@@ -136,19 +141,43 @@ def main() -> None:
         help="Which model opens the discussion (default: openai).",
     )
     parser.add_argument(
+        "--pro",
+        action="store_true",
+        help=(
+            f"Use the Pro tier on both sides ({PRO_OPENAI_MODEL} and "
+            f"{PRO_GEMINI_MODEL}) for higher quality and cost. Overridden by "
+            "explicit --openai-model / --gemini-model."
+        ),
+    )
+    parser.add_argument(
         "--openai-model",
-        default=os.environ.get("BRAINSTORM_OPENAI_MODEL", "gpt-5"),
-        help="OpenAI model name. Default: gpt-5 (or $BRAINSTORM_OPENAI_MODEL).",
+        default=None,
+        help=(
+            f"OpenAI model name. Default: {DEFAULT_OPENAI_MODEL} "
+            f"({PRO_OPENAI_MODEL} with --pro), or $BRAINSTORM_OPENAI_MODEL."
+        ),
     )
     parser.add_argument(
         "--gemini-model",
-        default=os.environ.get("BRAINSTORM_GEMINI_MODEL", "gemini-2.5-pro"),
-        help="Gemini model name. Default: gemini-2.5-pro (or $BRAINSTORM_GEMINI_MODEL).",
+        default=None,
+        help=(
+            f"Gemini model name. Default: {DEFAULT_GEMINI_MODEL} "
+            f"({PRO_GEMINI_MODEL} with --pro), or $BRAINSTORM_GEMINI_MODEL."
+        ),
     )
     args = parser.parse_args()
 
     if args.turns < 1:
         die("--turns must be at least 1")
+
+    if args.openai_model is None:
+        args.openai_model = os.environ.get("BRAINSTORM_OPENAI_MODEL") or (
+            PRO_OPENAI_MODEL if args.pro else DEFAULT_OPENAI_MODEL
+        )
+    if args.gemini_model is None:
+        args.gemini_model = os.environ.get("BRAINSTORM_GEMINI_MODEL") or (
+            PRO_GEMINI_MODEL if args.pro else DEFAULT_GEMINI_MODEL
+        )
 
     openai_client = get_openai_client()
     gemini_client = get_gemini_client()

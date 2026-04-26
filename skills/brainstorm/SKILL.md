@@ -23,13 +23,19 @@ Research mode — both models use web search:
 uv run "${CLAUDE_SKILL_DIR}/scripts/brainstorm.py" --topic "$ARGUMENTS" --research
 ```
 
+Pro tier — when the user asks for the "Pro models", "best models", "highest quality", "deep thinking", or similar, add `--pro` to use `gpt-5.5-pro` and `gemini-3.1-pro-preview` instead of the cheaper defaults:
+
+```bash
+uv run "${CLAUDE_SKILL_DIR}/scripts/brainstorm.py" --topic "$ARGUMENTS" --pro
+```
+
 Other flags:
 - `--turns N` — number of rounds (default `3`; each round is one OpenAI turn + one Gemini turn)
 - `--start gemini` — Gemini opens (default: OpenAI opens)
-- `--openai-model NAME` — override OpenAI model (default `gpt-5`, or `$BRAINSTORM_OPENAI_MODEL`)
-- `--gemini-model NAME` — override Gemini model (default `gemini-2.5-pro`, or `$BRAINSTORM_GEMINI_MODEL`)
+- `--openai-model NAME` — override OpenAI model (default `gpt-5.5`, `gpt-5.5-pro` with `--pro`, or `$BRAINSTORM_OPENAI_MODEL`)
+- `--gemini-model NAME` — override Gemini model (default `gemini-3.1-flash-lite-preview`, `gemini-3.1-pro-preview` with `--pro`, or `$BRAINSTORM_GEMINI_MODEL`)
 
-If the user passed a topic but also expressed intent like "research it" or "look it up", add `--research`. If they asked for "a quick exchange" or "just one round", set `--turns 1`.
+If the user expressed intent like "research it" or "look it up", add `--research`. If they asked for "a quick exchange" or "just one round", set `--turns 1`. If they asked for "the best" or "Pro tier", add `--pro`. These flags compose freely.
 
 ## Required environment variables
 

@@ -1,7 +1,14 @@
 __pycache__/
 *.py[cod]
 .venv/
+
+# Secrets — never commit
+keys.sh
+keys.env
 .env
 .env.*
 !.env.example
+*.key
+secrets.json
+
 .DS_Store
