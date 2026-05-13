@@ -1,0 +1,477 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>moebit-tools — Status</title>
+<style>
+  :root {
+    --ivory:  #FAF9F5;
+    --paper:  #FFFFFF;
+    --slate:  #141413;
+    --clay:   #D97757;
+    --clay-d: #B85C3E;
+    --oat:    #E3DACC;
+    --olive:  #788C5D;
+    --olive-d: #5E6F48;
+    --g100:   #F0EEE6;
+    --g200:   #E6E3DA;
+    --g300:   #D1CFC5;
+    --g500:   #87867F;
+    --g700:   #3D3D3A;
+    --serif: ui-serif, Georgia, "Times New Roman", Times, serif;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, Monaco, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0 auto;
+    max-width: 1120px;
+    background: var(--ivory);
+    color: var(--g700);
+    font: 14.5px/1.55 var(--sans);
+    -webkit-font-smoothing: antialiased;
+    padding: 56px 32px 96px;
+  }
+
+  /* ── masthead ─────────────────────────── */
+  header.masthead {
+    margin-bottom: 8px;
+    border-bottom: 1.5px solid var(--g300);
+    padding-bottom: 28px;
+  }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--g500);
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .eyebrow::before {
+    content: "";
+    width: 24px;
+    height: 1.5px;
+    background: var(--clay);
+  }
+  h1 {
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: clamp(32px, 4.6vw, 50px);
+    line-height: 1.06;
+    letter-spacing: -0.018em;
+    margin: 0 0 14px;
+    max-width: 22ch;
+    color: var(--slate);
+  }
+  h1 em {
+    font-style: italic;
+    color: var(--clay);
+  }
+  .subtitle {
+    font-size: 15.5px;
+    color: var(--g700);
+    margin: 0 0 22px;
+    max-width: 720px;
+    line-height: 1.55;
+  }
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--g500);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .swatch {
+    display: inline-block;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    margin-right: 6px;
+    vertical-align: 0;
+  }
+  .swatch.shipped { background: var(--olive); }
+  .swatch.pending {
+    background: var(--paper);
+    border: 2px solid var(--clay);
+    box-sizing: border-box;
+  }
+  kbd {
+    background: var(--paper);
+    border: 1.5px solid var(--g300);
+    border-radius: 4px;
+    padding: 1px 6px;
+    font: 11px var(--mono);
+    color: var(--g700);
+    text-transform: none;
+    letter-spacing: 0;
+  }
+
+  /* ── pipeline grid ────────────────────── */
+  .pipeline {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin: 36px 0 32px;
+  }
+  @media (max-width: 900px) { .pipeline { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 540px) { .pipeline { grid-template-columns: 1fr; } }
+
+  .stage {
+    background: var(--paper);
+    border: 1.5px solid var(--g300);
+    border-radius: 14px;
+    padding: 16px 18px;
+    cursor: pointer;
+    transition: transform 150ms ease, box-shadow 150ms ease, border-color 150ms ease, background 150ms ease;
+    text-align: left;
+    font: inherit;
+    color: inherit;
+    position: relative;
+  }
+  .stage:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(20, 20, 19, 0.08);
+    border-color: var(--slate);
+  }
+  .stage:focus-visible {
+    outline: 2px solid var(--clay);
+    outline-offset: 2px;
+  }
+  .stage.active {
+    border-color: var(--clay);
+    box-shadow: 0 6px 22px rgba(217, 119, 87, 0.16);
+  }
+  .stage-num {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--clay);
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    margin-bottom: 4px;
+  }
+  .stage-name {
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: 17px;
+    line-height: 1.22;
+    letter-spacing: -0.008em;
+    color: var(--slate);
+    margin: 0 0 8px;
+  }
+  .stage-blurb {
+    color: var(--g700);
+    font-size: 13px;
+    line-height: 1.45;
+  }
+  .stage-counts {
+    margin-top: 12px;
+    display: flex;
+    gap: 14px;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.04em;
+  }
+  .count-shipped { color: var(--olive); }
+  .count-pending { color: var(--clay); }
+
+  /* ── detail panel ─────────────────────── */
+  .panel {
+    background: var(--paper);
+    border: 1.5px solid var(--g300);
+    border-radius: 14px;
+    padding: 28px 32px;
+    min-height: 240px;
+  }
+  .panel-eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--clay);
+    margin-bottom: 8px;
+  }
+  .panel h2 {
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: 26px;
+    line-height: 1.15;
+    letter-spacing: -0.012em;
+    margin: 0 0 10px;
+    color: var(--slate);
+  }
+  .panel-detail {
+    color: var(--g700);
+    font-size: 14.5px;
+    margin: 0 0 26px;
+    max-width: 64ch;
+    line-height: 1.6;
+  }
+  .columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+  }
+  @media (max-width: 720px) {
+    .columns { grid-template-columns: 1fr; }
+  }
+  .col h3 {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-weight: 600;
+    margin: 0 0 12px;
+  }
+  .col.shipped h3 { color: var(--olive); }
+  .col.pending h3 { color: var(--clay); }
+  .col ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .col li {
+    position: relative;
+    padding: 9px 0 9px 22px;
+    font-size: 13.5px;
+    color: var(--g700);
+    border-bottom: 1px solid var(--g200);
+    line-height: 1.55;
+  }
+  .col li:last-child { border-bottom: none; }
+  .col li::before {
+    content: "";
+    position: absolute;
+    left: 2px;
+    top: 16px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+  .col.shipped li::before { background: var(--olive); }
+  .col.pending li::before {
+    background: var(--paper);
+    border: 2px solid var(--clay);
+    width: 10px;
+    height: 10px;
+    top: 15px;
+    left: 1px;
+    box-sizing: border-box;
+  }
+  .col li code {
+    font-family: var(--mono);
+    background: var(--g100);
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 12px;
+    color: var(--slate);
+  }
+  .col li .ref {
+    color: var(--g500);
+    font-family: var(--mono);
+    font-size: 11px;
+    margin-left: 6px;
+    letter-spacing: 0.02em;
+  }
+  .empty {
+    color: var(--g500);
+    font-style: italic;
+    font-size: 13px;
+    padding: 6px 0;
+  }
+
+  footer {
+    margin-top: 36px;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    color: var(--g500);
+    text-align: right;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="eyebrow">Project status — interactive snapshot</div>
+  <h1>moebit-tools — <em>marketplace</em></h1>
+  <p class="subtitle">Claude Code plugin marketplace hosting two plugins across four tracked parts. Click any card below to see what shipped and what's still on the agenda.</p>
+  <div class="legend">
+    <span><span class="swatch shipped"></span>shipped</span>
+    <span><span class="swatch pending"></span>pending</span>
+    <span>nav: <kbd>Tab</kbd> + <kbd>Enter</kbd> or arrow keys</span>
+    <span>snapshot 2026-05-13</span>
+  </div>
+</header>
+
+<div class="pipeline" id="pipeline" role="tablist" aria-label="Project parts"></div>
+
+<div class="panel" id="detail-panel" aria-live="polite">
+  <!-- populated by JS -->
+</div>
+
+<footer>Generated by /project-status. Update by re-invoking the skill or editing the STAGES array directly.</footer>
+
+<script>
+const STAGES = [
+  {
+    "id": "marketplace",
+    "num": "01",
+    "name": "Marketplace & Install",
+    "blurb": "moebit-tools manifest and per-plugin install flow.",
+    "detail": "Top-level <code>marketplace.json</code> lists each plugin's source path. Install is via <code>/plugin marketplace add moebit/claude</code> followed by <code>/plugin install &lt;name&gt;@moebit-tools</code> (or the matching CLI command).",
+    "shipped": [
+      ["<code>marketplace.json</code> bootstrap", "4778d26"],
+      ["<code>plugin.json</code> manifest for <code>multi-llm</code> at repo root", "f56d68e"],
+      ["Second <code>plugins[]</code> entry for <code>project-status</code> at <code>./plugins/project-status/</code>", "this session"]
+    ],
+    "pending": [
+      ["Push current branch so <code>/plugin marketplace update moebit-tools</code> picks up <code>project-status</code> from origin (right now it's only synced into the local cache)", "post-test"]
+    ]
+  },
+  {
+    "id": "multi-llm",
+    "num": "02",
+    "name": "multi-llm — brainstorm",
+    "blurb": "Cross-model brainstorm between OpenAI and Gemini.",
+    "detail": "First skill in the marketplace. Runs a multi-turn dialogue between OpenAI and Gemini on a user-supplied topic. <code>--research</code> turns on web search for both models, <code>--pro</code> swaps to top-tier models.",
+    "shipped": [
+      ["<code>skills/brainstorm/SKILL.md</code> + <code>scripts/brainstorm.py</code> via <code>uv run</code>", "f56d68e"],
+      ["Latest-model defaults (<code>gpt-5.5</code>, <code>gemini-3.1-flash-lite-preview</code>) and the <code>--pro</code> flag", "e5c55e7"],
+      ["Inline uv dependency metadata — first call self-resolves", "f56d68e"]
+    ],
+    "pending": [
+      ["No active carry-forwards"]
+    ]
+  },
+  {
+    "id": "project-status",
+    "num": "03",
+    "name": "project-status — this skill",
+    "blurb": "Generate or update project_status.html for any project.",
+    "detail": "Second plugin in the marketplace. Auto-detects create vs update mode from the presence of <code>project_status.html</code> in cwd, then either renders the template or surgically edits the inline <code>STAGES</code> array.",
+    "shipped": [
+      ["<code>SKILL.md</code> with create-mode + update-mode workflows", "this session"],
+      ["HTML template with thariqs ivory/clay/olive palette (<code>--ivory #FAF9F5</code>, <code>--clay #D97757</code>, <code>--olive #788C5D</code>)", "this session"],
+      ["CLAUDE.md tracking snippet — the auto-update mechanic for future sessions", "this session"],
+      ["<code>plugin.json</code> manifest + second entry in <code>marketplace.json</code>", "this session"],
+      ["Local-cache sync workaround + post-restart install path validated end-to-end", "this session"]
+    ],
+    "pending": [
+      ["End-to-end visual verification in a browser — palette, hover lift, keyboard nav, click-through to detail panel", "test together"],
+      ["Commit + push once the visuals are signed off", "post-test"]
+    ]
+  },
+  {
+    "id": "docs",
+    "num": "04",
+    "name": "Documentation",
+    "blurb": "README structure, install guides, layout diagram.",
+    "detail": "Marketplace-level <code>README.md</code> covering both plugins. Per-plugin sections (<code>## multi-llm</code>, <code>## project-status</code>) with usage, how-it-works, and configuration. Layout diagram shows the dual-plugin directory.",
+    "shipped": [
+      ["Marketplace-level intro + Plugins &amp; skills table", "this session"],
+      ["Per-plugin sections with usage / how-it-works / config", "this session"],
+      ["Updated layout diagram showing <code>plugins/project-status/</code> as a sibling to <code>multi-llm</code>", "this session"],
+      ["Install commands extended to cover both plugins", "this session"]
+    ],
+    "pending": [
+      ["No active carry-forwards"]
+    ]
+  }
+];
+
+const pipelineEl = document.getElementById("pipeline");
+const panelEl = document.getElementById("detail-panel");
+
+STAGES.forEach((stage, idx) => {
+  const btn = document.createElement("button");
+  btn.className = "stage";
+  btn.type = "button";
+  btn.setAttribute("role", "tab");
+  btn.setAttribute("tabindex", idx === 0 ? "0" : "-1");
+  btn.setAttribute("aria-selected", "false");
+  btn.dataset.id = stage.id;
+  btn.innerHTML = `
+    <div class="stage-num">${stage.num}</div>
+    <div class="stage-name">${stage.name}</div>
+    <div class="stage-blurb">${stage.blurb}</div>
+    <div class="stage-counts">
+      <span class="count-shipped">${stage.shipped.length} shipped</span>
+      <span class="count-pending">${stage.pending.length} pending</span>
+    </div>
+  `;
+  btn.addEventListener("click", () => selectStage(stage.id));
+  btn.addEventListener("keydown", (e) => handleKey(e, idx));
+  pipelineEl.appendChild(btn);
+});
+
+function selectStage(id) {
+  const stage = STAGES.find(s => s.id === id);
+  if (!stage) return;
+  document.querySelectorAll(".stage").forEach(el => {
+    const active = el.dataset.id === id;
+    el.classList.toggle("active", active);
+    el.setAttribute("aria-selected", active ? "true" : "false");
+    el.setAttribute("tabindex", active ? "0" : "-1");
+  });
+  renderPanel(stage);
+}
+
+function renderPanel(stage) {
+  const renderList = (items, kind) => {
+    if (!items || items.length === 0) return `<div class="empty">none</div>`;
+    const filtered = items.filter(pair => pair[0] && pair[0].trim().length > 0);
+    if (filtered.length === 0) {
+      return `<div class="empty">${kind === "shipped" ? "no recent shipping notes" : "no carry-forwards"}</div>`;
+    }
+    return `<ul>${filtered.map(([txt, ref]) => `
+      <li>${txt}${ref ? `<span class="ref">— ${ref}</span>` : ""}</li>
+    `).join("")}</ul>`;
+  };
+
+  panelEl.innerHTML = `
+    <div class="panel-eyebrow">${stage.num} · part</div>
+    <h2>${stage.name}</h2>
+    <p class="panel-detail">${stage.detail}</p>
+    <div class="columns">
+      <div class="col shipped">
+        <h3>Recently shipped</h3>
+        ${renderList(stage.shipped, "shipped")}
+      </div>
+      <div class="col pending">
+        <h3>What's left</h3>
+        ${renderList(stage.pending, "pending")}
+      </div>
+    </div>
+  `;
+}
+
+function handleKey(e, idx) {
+  if (e.key === "Enter" || e.key === " ") {
+    e.preventDefault();
+    selectStage(STAGES[idx].id);
+    return;
+  }
+  let nextIdx = null;
+  if (e.key === "ArrowRight" || e.key === "ArrowDown") nextIdx = (idx + 1) % STAGES.length;
+  if (e.key === "ArrowLeft" || e.key === "ArrowUp") nextIdx = (idx - 1 + STAGES.length) % STAGES.length;
+  if (nextIdx !== null) {
+    e.preventDefault();
+    const btn = pipelineEl.children[nextIdx];
+    btn.focus();
+    selectStage(STAGES[nextIdx].id);
+  }
+}
+
+if (STAGES.length > 0) selectStage(STAGES[0].id);
+</script>
+</body>
+</html>

@@ -17,6 +17,16 @@
         "name": "moebit"
       },
       "keywords": ["brainstorm", "openai", "gemini", "multi-model", "research"]
+    },
+    {
+      "name": "project-status",
+      "source": "./plugins/project-status/",
+      "description": "Generate and maintain an interactive HTML status page (project_status.html) summarizing a project's main parts, what shipped, and what's pending. Restyled with the ivory/clay/olive palette from thariqs.github.io/html-effectiveness.",
+      "version": "0.1.0",
+      "author": {
+        "name": "moebit"
+      },
+      "keywords": ["status", "dashboard", "html", "tracker", "progress", "agenda"]
     }
   ]
 }

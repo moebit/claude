@@ -1,0 +1,9 @@
+{
+  "name": "project-status",
+  "version": "0.1.0",
+  "description": "Generate and maintain an interactive HTML status page (project_status.html) showing project parts, what shipped, and what's pending. Inspired by watchtower's pipeline_status, restyled with the ivory/clay/olive palette from thariqs.github.io/html-effectiveness.",
+  "author": {
+    "name": "moe"
+  },
+  "keywords": ["status", "dashboard", "html", "tracker", "progress", "agenda"]
+}
