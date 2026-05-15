@@ -27,6 +27,16 @@
         "name": "moebit"
       },
       "keywords": ["status", "dashboard", "html", "tracker", "progress", "agenda"]
+    },
+    {
+      "name": "research-dev-loop",
+      "source": "./plugins/research-dev-loop/",
+      "description": "Autonomous research → plan → implement → test → decide loop. Codex critiques the plan and reviews the implementation; each stage is mirrored into an Obsidian wiki for cross-cycle memory; commits after each successful stage. Stops only when tests pass and no open doubts remain.",
+      "version": "0.1.0",
+      "author": {
+        "name": "moebit"
+      },
+      "keywords": ["autonomous", "research", "codex", "obsidian", "loop", "dev-loop", "agent"]
     }
   ]
 }

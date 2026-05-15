@@ -1,0 +1,9 @@
+{
+  "name": "research-dev-loop",
+  "version": "0.1.0",
+  "description": "Autonomous research → plan → implement → test → decide loop. Codex critiques the plan and reviews the implementation; each stage is mirrored into an Obsidian wiki for cross-cycle memory; commits after each successful stage. Stops only when tests pass and no open doubts remain. Configurable via references/program.md (cycle cap, model picks, commit style, wiki paths).",
+  "author": {
+    "name": "moe"
+  },
+  "keywords": ["autonomous", "research", "codex", "obsidian", "loop", "dev-loop", "agent"]
+}

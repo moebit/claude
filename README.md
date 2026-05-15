@@ -1,6 +1,6 @@
 # moebit-tools
 
-A personal Claude Code [plugin marketplace](https://code.claude.com/docs/en/plugin-marketplaces) hosting `multi-llm` (cross-model collaboration) and `project-status` (interactive HTML progress tracker for any project).
+A personal Claude Code [plugin marketplace](https://code.claude.com/docs/en/plugin-marketplaces) hosting `multi-llm` (cross-model collaboration), `project-status` (interactive HTML progress tracker), and `research-dev-loop` (autonomous research → plan → implement → test loop with Codex critique and Obsidian wiki memory).
 
 ## Plugins & skills
 
@@ -8,6 +8,7 @@ A personal Claude Code [plugin marketplace](https://code.claude.com/docs/en/plug
 | :----- | :---- | :----------- |
 | `multi-llm` | `brainstorm` | Multi-turn dialogue between OpenAI and Gemini on a topic; optional `--research` mode where both models use web search. |
 | `project-status` | `project-status` | Generate or update `project_status.html` — an interactive page showing the main parts of a project, what's shipped, and what's pending. Styled with the ivory/clay/olive palette from [thariqs.github.io/html-effectiveness](https://thariqs.github.io/html-effectiveness/). |
+| `research-dev-loop` | `research-dev-loop` | Autonomous research → plan → implement → test loop. Codex critiques the plan and reviews the implementation; every stage is mirrored into an Obsidian wiki for cross-cycle memory; commits after each successful stage. Configurable via `references/program.md`. |
 
 ## Install
 
@@ -15,6 +16,7 @@ A personal Claude Code [plugin marketplace](https://code.claude.com/docs/en/plug
 
 - For `multi-llm`: [`uv`](https://docs.astral.sh/uv/) — `brew install uv` or `conda install -c conda-forge uv`. The brainstorm script declares its dependencies inline and `uv run` resolves them on first call. Also `OPENAI_API_KEY` and `GEMINI_API_KEY` (or `GOOGLE_API_KEY`) in the shell that runs Claude Code.
 - For `project-status`: nothing beyond Claude Code itself — pure HTML output, no runtime deps.
+- For `research-dev-loop`: the [Codex plugin](https://github.com/openai/codex-plugin-cc) for plan/implementation reviews and the [claude-obsidian plugin](https://github.com/AgriciDaniel/claude-obsidian) for wiki mirroring. The skill degrades if either is missing, but the full critique + audit-trail loop needs both.
 
 ### Install from this repo
 
@@ -24,9 +26,10 @@ A personal Claude Code [plugin marketplace](https://code.claude.com/docs/en/plug
 /plugin marketplace add moebit/claude
 /plugin install multi-llm@moebit-tools
 /plugin install project-status@moebit-tools
+/plugin install research-dev-loop@moebit-tools
 ```
 
-Then run `/reload-plugins` to activate. The skills become available as `/multi-llm:brainstorm` and `/project-status:project-status` (both also auto-invoke from natural-language triggers).
+Then run `/reload-plugins` to activate. The skills become available as `/multi-llm:brainstorm`, `/project-status:project-status`, and `/research-dev-loop:research-dev-loop` (all also auto-invoke from natural-language triggers).
 
 > Because the repo is private, `gh auth status` (or another git credential helper) must be authenticated for the host running Claude Code so the marketplace clone can fetch.
 
@@ -36,6 +39,7 @@ You can also install via the CLI before launching Claude Code:
 claude plugin marketplace add moebit/claude
 claude plugin install multi-llm@moebit-tools
 claude plugin install project-status@moebit-tools
+claude plugin install research-dev-loop@moebit-tools
 ```
 
 ### Local development (skip marketplace)
@@ -108,14 +112,38 @@ The tracking note in `CLAUDE.md` is the auto-update mechanic — once dropped, a
 
 ### Visual identity
 
-Palette borrowed from [thariqs.github.io/html-effectiveness](https://thariqs.github.io/html-effectiveness/) — ivory background, terracotta clay accents, sage olive for shipped bullets, warm oat for card hover. Serif headings with italic emphasis, monospace eyebrows.
+Palette borrowed from [thariqs.github.io/html-effectiveness](https://thariqs.github.io/html-effectiveness/) — ivory background, terracotta clay accents, sage olive for shipped bullets, warm oat for card hover. All-sans semibold typography, monospace eyebrows.
+
+## `research-dev-loop`
+
+### Usage
+
+From a project directory, with a goal in mind:
+
+```
+/research-dev-loop:research-dev-loop add JSON output mode to the report CLI
+```
+
+…or in natural language: "run a research-dev loop on X", "autonomous dev loop", "auto research loop".
+
+The skill drives a self-contained research → plan → implement → test cycle. Codex critiques the plan and reviews the implementation; each stage's artifact is mirrored into an Obsidian wiki for cross-cycle memory; commits after each successful stage. Loops until tests pass and no open doubts remain (hard cap configurable in `program.md`).
+
+### How it works
+
+1. Reads `references/program.md` at the start of every run — that file is the policy (cycle cap, model picks, commit style, wiki paths). If `SKILL.md` and `program.md` disagree, the program file wins.
+2. Per cycle: (a) research and file findings to the wiki, (b) draft a plan + have Codex critique it, (c) implement with a post-implement Codex review and commit, (d) write and run tests, (e) if tests fail or doubts remain, loop back.
+3. Pauses only for: ambiguous goal (one tight clarifier), scope drift mid-cycle, same blocker hit 3+ cycles, or genuinely destructive actions outside the loop's scope.
+
+### Configuration
+
+Tune behavior by editing the program file at `skills/research-dev-loop/references/program.md` inside the installed plugin — cycle cap, web-op cap per cycle, Codex model picks, commit style, wiki path conventions, domain-specific overrides.
 
 ## Layout
 
 ```
 .
 ├── .claude-plugin/
-│   ├── marketplace.json     # marketplace manifest (lists both plugins)
+│   ├── marketplace.json     # marketplace manifest (lists all three plugins)
 │   └── plugin.json          # multi-llm plugin manifest (source: "./")
 ├── skills/
 │   └── brainstorm/          # multi-llm's skill
@@ -123,15 +151,23 @@ Palette borrowed from [thariqs.github.io/html-effectiveness](https://thariqs.git
 │       └── scripts/
 │           └── brainstorm.py
 ├── plugins/
-│   └── project-status/      # project-status plugin (source: "./plugins/project-status/")
+│   ├── project-status/      # project-status plugin
+│   │   ├── .claude-plugin/
+│   │   │   └── plugin.json
+│   │   └── skills/
+│   │       └── project-status/
+│   │           ├── SKILL.md
+│   │           ├── templates/
+│   │           │   └── project_status.html
+│   │           └── assets/
+│   │               └── claude_md_tracking.md
+│   └── research-dev-loop/   # research-dev-loop plugin
 │       ├── .claude-plugin/
 │       │   └── plugin.json
 │       └── skills/
-│           └── project-status/
+│           └── research-dev-loop/
 │               ├── SKILL.md
-│               ├── templates/
-│               │   └── project_status.html
-│               └── assets/
-│                   └── claude_md_tracking.md
+│               └── references/
+│                   └── program.md
 └── README.md
 ```
